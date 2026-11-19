@@ -1,0 +1,15 @@
+# Tips by Category
+
+- [API Hacking](by-category/api-hacking.md) (28)
+- [Auth Bypass](by-category/auth-bypass.md) (15)
+- [CSRF](by-category/csrf.md) (4)
+- [Fuzzing](by-category/fuzzing.md) (3)
+- [General](by-category/general.md) (17)
+- [IDOR](by-category/idor.md) (11)
+- [Password Reset](by-category/password-reset.md) (1)
+- [RCE](by-category/rce.md) (1)
+- [Recon](by-category/recon.md) (57)
+- [SSRF](by-category/ssrf.md) (1)
+- [Subdomain Enum](by-category/subdomain-enum.md) (1)
+- [WAF Bypass](by-category/waf-bypass.md) (7)
+- [XSS](by-category/xss.md) (5)

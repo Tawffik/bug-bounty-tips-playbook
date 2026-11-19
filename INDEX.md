@@ -1,0 +1,104 @@
+# Tips Index
+
+_Exported subset: 100 tips (Notion DB has 333 total)._
+
+- [.DS_Store + Thumbs.db exposure → directory structure leak](tips/ds-store-thumbsdb-exposure-directory-structure-leak.md) — ⭐ جيدة — Recon
+- [.git/config exposed → full source dump with git-dumper ($500–$3500+ real cases)](tips/gitconfig-exposed-full-source-dump-with-git-dumper-5003500-real-cases.md) — ⭐ جيدة — Recon
+- [.htpasswd / .htaccess exposed → Basic Auth credentials](tips/htpasswd-htaccess-exposed-basic-auth-credentials.md) — ⭐ جيدة — Recon
+- [.svn/wc.db exposed → full source code reconstruction ($400 case)](tips/svnwcdb-exposed-full-source-code-reconstruction-400-case.md) — 🔥 قوية — Recon
+- [200 OK is not proof of BOLA](tips/200-ok-is-not-proof-of-bola.md) — 🔥 قوية — IDOR, API Hacking
+- [403/401 Bypass — Path Normalization & Parser Differential](tips/403401-bypass-path-normalization-parser-differential.md) — 🔥 قوية — WAF Bypass, Auth Bypass, API Hacking
+- [403/401 host → archive.org old snapshots still have secrets](tips/403401-host-archiveorg-old-snapshots-still-have-secrets.md) — ⭐ جيدة — Recon
+- [404 response → check for exposed config or repository paths](tips/404-response-check-for-exposed-config-or-repository-paths.md) — ⭐ جيدة — Recon
+- [404 Subdomains — Backend errors, S3 paths, and leaked stack info](tips/404-subdomains-backend-errors-s3-paths-and-leaked-stack-info.md) — 🔥 قوية — Recon, Subdomain Enum
+- [Advanced Dork: .env with real secrets (DB_PASSWORD / AWS_SECRET)](tips/advanced-dork-env-with-real-secrets-db-password-aws-secret.md) — 🔥 قوية — Recon
+- [Advanced Dork: .git exposure with HEAD/config](tips/advanced-dork-git-exposure-with-headconfig.md) — ⭐ جيدة — Recon
+- [Advanced Dork: Backup files with credentials](tips/advanced-dork-backup-files-with-credentials.md) — ⭐ جيدة — Recon
+- [Advanced Dork: Firebase / S3 public buckets](tips/advanced-dork-firebase-s3-public-buckets.md) — 🔥 قوية — Recon
+- [Advanced Dork: Open directory listings with sensitive folders](tips/advanced-dork-open-directory-listings-with-sensitive-folders.md) — 🔥 قوية — Recon
+- [Advanced Dork: Private keys & certificates](tips/advanced-dork-private-keys-certificates.md) — 🔥 قوية — Recon
+- [Advanced Dork: SQL dumps with real data](tips/advanced-dork-sql-dumps-with-real-data.md) — 🔥 قوية — Recon
+- [Advanced Dork: Swagger / OpenAPI / GraphQL docs](tips/advanced-dork-swagger-openapi-graphql-docs.md) — 🔥 قوية — API Hacking
+- [AI Builder Project Visibility Regression → Source / Chat History Authorization Boundary](tips/ai-builder-project-visibility-regression-source-chat-history-authorization-bound.md) — 📌 للمراجعة — Recon, General
+- [AI Chat / Support Agent — conversationID / session UUID BOLA (unauthenticated or cross-user)](tips/ai-chat-support-agent-conversationid-session-uuid-bola-unauthenticated-or-cross.md) — 🔥 قوية — IDOR, API Hacking, Auth Bypass
+- [AI support agents as attack surface (IDOR / BAC / XSS)](tips/ai-support-agents-as-attack-surface-idor-bac-xss.md) — 🔥 قوية — IDOR, Auth Bypass, XSS, API Hacking
+- [AI support chatbot that renders model output in DOM → XSS → session theft / ATO](tips/ai-support-chatbot-that-renders-model-output-in-dom-xss-session-theft-ato.md) — 🔥 قوية — XSS, Auth Bypass
+- [Amazon Cognito misconfig → Account Takeover](tips/amazon-cognito-misconfig-account-takeover.md) — 🔥 قوية — Auth Bypass
+- [Angular HttpClient — URL parsing discrepancy may leak XSRF tokens](tips/angular-httpclient-url-parsing-discrepancy-may-leak-xsrf-tokens.md) — 🔥 قوية — CSRF, Fuzzing, API Hacking
+- [Apache server-status / server-info مكشوف → internal info + active requests](tips/apache-server-status-server-info-مكشوف-internal-info-active-requests.md) — ⭐ جيدة — Recon
+- [API Debug /env /status endpoints → $3,000 Bounty (Secret Hunter case)](tips/api-debug-env-status-endpoints-3000-bounty-secret-hunter-case.md) — 🔥 قوية — Recon, API Hacking
+- [API: جرّب تغيير نوع قيمة الـ UUID لـ ID أو Email](tips/api-جرب-تغيير-نوع-قيمة-الـ-uuid-لـ-id-أو-email.md) — ⭐ جيدة — API Hacking, IDOR
+- [Array / parameter pollution on ID (user_id[]=1&user_id[]=2)](tips/array-parameter-pollution-on-id-user-id1user-id2.md) — ⭐ جيدة — IDOR
+- [Array injection ([] or [1,2,3]) → Full Path / Stack Trace Disclosure](tips/array-injection-or-123-full-path-stack-trace-disclosure.md) — ⭐ جيدة — Recon, General
+- [Array-form IDOR — id[]=attacker&id[]=victim bypass](tips/array-form-idor-idattackeridvictim-bypass.md) — 🔥 قوية — IDOR, API Hacking
+- [Authorization path parser differential — encoded semicolon, slash, and backslash](tips/authorization-path-parser-differential-encoded-semicolon-slash-and-backslash.md) — 🔥 قوية — Auth Bypass, Fuzzing, API Hacking
+- [Authorization test: swap the target, not the session](tips/authorization-test-swap-the-target-not-the-session.md) — 🔥 قوية — IDOR, API Hacking
+- [Autorize — أتمتة صيد IDOR / Broken Access Control](tips/autorize-أتمتة-صيد-idor-broken-access-control.md) — 🔥 قوية — IDOR, Auth Bypass
+- [AWS App Recon Chain → Cognito Identifiers, S3 / DNS / Deployment Artifact Exposure ($10K Case)](tips/aws-app-recon-chain-cognito-identifiers-s3-dns-deployment-artifact-exposure-10k.md) — ⭐ جيدة — Recon, General
+- [AWS tip: probe /ramp_core.js for embedded AccessKey material](tips/aws-tip-probe-ramp-corejs-for-embedded-accesskey-material.md) — ⭐ جيدة — Recon, API Hacking
+- [Azure Application Gateway v2 — 403 Query String Extension Bypass (Unverified)](tips/azure-application-gateway-v2-403-query-string-extension-bypass-unverified.md) — 📌 للمراجعة — WAF Bypass
+- [Azure DevOps Public Project Review → Pipeline Metadata & Accidental Secret Exposure](tips/azure-devops-public-project-review-pipeline-metadata-accidental-secret-exposure.md) — ⭐ جيدة — Recon, API Hacking
+- [Backup Disclosure عبر فزّ امتداد tar.gz على الدومين الرئيسي](tips/backup-disclosure-عبر-فز-امتداد-targz-على-الدومين-الرئيسي.md) — 🔥 قوية — Recon, General
+- [Backup files (wp-config.php.bak, .env.bak, .sql, ~ files) → credentials leak](tips/backup-files-wp-configphpbak-envbak-sql-files-credentials-leak.md) — 📌 للمراجعة — Recon
+- [Backup tar.gz / .zip / .sql على الـ root domain مباشرة](tips/backup-targz-zip-sql-على-الـ-root-domain-مباشرة.md) — 🔥 قوية — Recon
+- [Basic Auth cancel spam — intermittent auth bypass on some panels](tips/basic-auth-cancel-spam-intermittent-auth-bypass-on-some-panels.md) — 📌 للمراجعة — Auth Bypass
+- [Blind SSRF Detection عبر Interactsh](tips/blind-ssrf-detection-عبر-interactsh.md) — 🔥 قوية — SSRF
+- [Blind XSS أوتوماتيكي عبر Match & Replace في Burp](tips/blind-xss-أوتوماتيكي-عبر-match-replace-في-burp.md) — 🔥 قوية — XSS
+- [BOLA / IDOR via Batch & Bulk ID Mixing](tips/bola-idor-via-batch-bulk-id-mixing.md) — 🔥 قوية — IDOR, API Hacking
+- [BOLA via Wildcard / Special ID Values (*, all, 0, -1, null, empty)](tips/bola-via-wildcard-special-id-values-all-0-1-null-empty.md) — 🔥 قوية — IDOR, API Hacking
+- [Broken Access: function-level (access admin endpoint as normal user)](tips/broken-access-function-level-access-admin-endpoint-as-normal-user.md) — 🔥 قوية — Auth Bypass, IDOR
+- [Business Logic: Bypass الأسعار بتلاعب العملات (Currency Confusion)](tips/business-logic-bypass-الأسعار-بتلاعب-العملات-currency-confusion.md) — 🔥 قوية — General
+- [Business Logic: race on wallet / coupon / referral](tips/business-logic-race-on-wallet-coupon-referral.md) — 🔥 قوية — General
+- [Bypass 403 Forbidden بإضافة X-Client-IP: 127.0.0.1](tips/bypass-403-forbidden-بإضافة-x-client-ip-127001.md) — ⭐ جيدة — WAF Bypass, Recon
+- [Bypass File Upload Validation بـ Magic Bytes](tips/bypass-file-upload-validation-بـ-magic-bytes.md) — 🔥 قوية — General
+- [Bypass الدفع بالـ Test Cards المنسية في Production](tips/bypass-الدفع-بالـ-test-cards-المنسية-في-production.md) — ⭐ جيدة — General
+- [Bypass الـ WAF عبر إيجاد الـ Origin IP](tips/bypass-الـ-waf-عبر-إيجاد-الـ-origin-ip.md) — 🔥 قوية — WAF Bypass
+- [Bypass فلاتر القيم بالـ Base64 Encoding (SQL/SSTI/XSS/LFI)](tips/bypass-فلاتر-القيم-بالـ-base64-encoding-sqlsstixsslfi.md) — 🔥 قوية — General, WAF Bypass
+- [Bypass قيود الوصول بتغيير حروف الـ Path (Case Sensitivity)](tips/bypass-قيود-الوصول-بتغيير-حروف-الـ-path-case-sensitivity.md) — 🔥 قوية — WAF Bypass, Recon
+- [Cache Poisoning via Unkeyed Headers (X-Forwarded-Host / X-Forwarded-Scheme)](tips/cache-poisoning-via-unkeyed-headers-x-forwarded-host-x-forwarded-scheme.md) — 🔥 قوية — API Hacking, XSS, General
+- [Casdoor — token exchange must bind JWT identity to the target organization](tips/casdoor-token-exchange-must-bind-jwt-identity-to-the-target-organization.md) — 🔥 قوية — Auth Bypass, API Hacking
+- [Client-side role / isAdmin / price tampering — verify server-side enforcement](tips/client-side-role-isadmin-price-tampering-verify-server-side-enforcement.md) — ⭐ جيدة — API Hacking, Auth Bypass
+- [Cloudflare R2.dev public access left on → data exposure](tips/cloudflare-r2dev-public-access-left-on-data-exposure.md) — 🔥 قوية — Recon
+- [Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection](tips/cloudflare-workerapi-key-exposure-edge-javascript-supply-chain-injection.md) — ⭐ جيدة — Recon, API Hacking, General
+- [Common debug / admin panels on non-standard ports or staging](tips/common-debug-admin-panels-on-non-standard-ports-or-staging.md) — ⭐ جيدة — Recon
+- [composer.phar / phar archives as Info Disclosure](tips/composerphar-phar-archives-as-info-disclosure.md) — ⭐ جيدة — Recon
+- [config.php / settings.py / application.properties / appsettings.json exposed](tips/configphp-settingspy-applicationproperties-appsettingsjson-exposed.md) — 🔥 قوية — Recon
+- [Connectivity Check → cURL Shell Injection; Then Pivot to Sibling Features](tips/connectivity-check-curl-shell-injection-then-pivot-to-sibling-features.md) — ⭐ جيدة — RCE, Fuzzing
+- [CORS Bypass عبر Whitelisted Third-Party Origins](tips/cors-bypass-عبر-whitelisted-third-party-origins.md) — 🔥 قوية — CSRF, General
+- [CORS null origin + Allow-Credentials: true → data theft](tips/cors-null-origin-allow-credentials-true-data-theft.md) — 🔥 قوية — API Hacking
+- [CORS origin reflection + credentials = data theft](tips/cors-origin-reflection-credentials-data-theft.md) — 🔥 قوية — General
+- [CRLF in password reset to inject Host](tips/crlf-in-password-reset-to-inject-host.md) — ⭐ جيدة — Password Reset
+- [crossdomain.xml / clientaccesspolicy.xml permissive → Flash/Silverlight origin issues](tips/crossdomainxml-clientaccesspolicyxml-permissive-flashsilverlight-origin-issues.md) — 📌 للمراجعة — Recon
+- [CSP Bypass عبر JSONP/Scripts على Domains موثوقة](tips/csp-bypass-عبر-jsonpscripts-على-domains-موثوقة.md) — 🔥 قوية — XSS
+- [CSRF token bypass via HTTP method override](tips/csrf-token-bypass-via-http-method-override.md) — ⭐ جيدة — CSRF, Auth Bypass
+- [CSRF في GraphQL Targets](tips/csrf-في-graphql-targets.md) — ⭐ جيدة — CSRF
+- [Default-ish admin password pattern: admin / [company]12345](tips/default-ish-admin-password-pattern-admin-company12345.md) — ⭐ جيدة — Auth Bypass
+- [Different 404 Fingerprint → Look for a Separate Backend API Context](tips/different-404-fingerprint-look-for-a-separate-backend-api-context.md) — ⭐ جيدة — Recon, API Hacking
+- [Directory listing enabled (especially /wp-content, /uploads, /backup)](tips/directory-listing-enabled-especially-wp-content-uploads-backup.md) — ⭐ جيدة — Recon
+- [Disable JavaScript → legacy / forgotten form still live](tips/disable-javascript-legacy-forgotten-form-still-live.md) — ⭐ جيدة — Recon, Auth Bypass
+- [Discover quieter bug bounty programs via Slack dork](tips/discover-quieter-bug-bounty-programs-via-slack-dork.md) — ⭐ جيدة — Recon, General
+- [Django DEBUG=True in production](tips/django-debugtrue-in-production.md) — 🔥 قوية — Recon
+- [Django DEBUG=True in production → full traceback + settings leak](tips/django-debugtrue-in-production-full-traceback-settings-leak.md) — ⭐ جيدة — Recon
+- [Dork (High Signal): API Docs & Swagger / GraphQL / Redoc](tips/dork-high-signal-api-docs-swagger-graphql-redoc.md) — 🔥 قوية — API Hacking
+- [Dork (High Signal): Cloud buckets linked to target](tips/dork-high-signal-cloud-buckets-linked-to-target.md) — 🔥 قوية — Recon
+- [Dork (High Signal): Confidential / Internal documents](tips/dork-high-signal-confidential-internal-documents.md) — ⭐ جيدة — Recon
+- [Dork (High Signal): Database dumps with real content](tips/dork-high-signal-database-dumps-with-real-content.md) — 🔥 قوية — Recon
+- [Dork (High Signal): Error / Stack Trace / SQL errors](tips/dork-high-signal-error-stack-trace-sql-errors.md) — ⭐ جيدة — Recon
+- [Dork (High Signal): Full juicy extensions dump](tips/dork-high-signal-full-juicy-extensions-dump.md) — 🔥 قوية — Recon
+- [Dork (High Signal): Index of with sensitive names](tips/dork-high-signal-index-of-with-sensitive-names.md) — 🔥 قوية — Recon
+- [Dork (High Signal): Test / Staging / Dev environments](tips/dork-high-signal-test-staging-dev-environments.md) — 🔥 قوية — Recon
+- [Dork (High Signal): wp-config / PHP config backups](tips/dork-high-signal-wp-config-php-config-backups.md) — 🔥 قوية — Recon
+- [Dork (Lesser-known): Bing IP-based search for exposed files](tips/dork-lesser-known-bing-ip-based-search-for-exposed-files.md) — ⭐ جيدة — Recon
+- [DorkAgent — automate scoped dork research](tips/dorkagent-automate-scoped-dork-research.md) — ⭐ جيدة — Recon
+- [Elasticsearch / Kibana open (no auth) → full data dump](tips/elasticsearch-kibana-open-no-auth-full-data-dump.md) — 🔥 قوية — Recon
+- [Elmah.axd / ASP.NET error log exposed](tips/elmahaxd-aspnet-error-log-exposed.md) — ⭐ جيدة — Recon
+- [Elmah.axd /elmah → Session cookies → Employee ATO ($6,000 escalation case)](tips/elmahaxd-elmah-session-cookies-employee-ato-6000-escalation-case.md) — 📌 للمراجعة — Recon, Auth Bypass
+- [Empty API response subdomain → still try full Swagger paths](tips/empty-api-response-subdomain-still-try-full-swagger-paths.md) — ⭐ جيدة — Recon, API Hacking
+- [Escalate the finding: SSRF→RCE, Self-XSS→Clickjacking/CSRF, misconfig chains](tips/escalate-the-finding-ssrfrce-self-xssclickjackingcsrf-misconfig-chains.md) — 🔥 قوية — General
+- [Excessive API fields + GDPR/CCPA framing لرفع الـ Severity](tips/excessive-api-fields-gdprccpa-framing-لرفع-الـ-severity.md) — 🔥 قوية — API Hacking, General
+- [Exposed .env على subdomain = $250–$10k+ (Easy $250 case + higher)](tips/exposed-env-على-subdomain-25010k-easy-250-case-higher.md) — 🔥 قوية — Recon
+- [Exposed Google Maps API keys may unlock Gemini — validate model access not just Maps](tips/exposed-google-maps-api-keys-may-unlock-gemini-validate-model-access-not-just-ma.md) — 🔥 قوية — Recon, API Hacking
+- [Fat GET Requests — تمرير Params في الـ Body لتجاوز Cache Key](tips/fat-get-requests-تمرير-params-في-الـ-body-لتجاوز-cache-key.md) — 🔥 قوية — WAF Bypass, API Hacking
+- [FindSomething browser extension for credential-shaped strings during recon](tips/findsomething-browser-extension-for-credential-shaped-strings-during-recon.md) — ⭐ جيدة — Recon, General
+- [Firebase Realtime DB / Firestore open rules → full read/write (classic high impact)](tips/firebase-realtime-db-firestore-open-rules-full-readwrite-classic-high-impact.md) — 🔥 قوية — API Hacking, Recon
+- [Firebase Realtime DB open rules (read/write without auth)](tips/firebase-realtime-db-open-rules-readwrite-without-auth.md) — 🔥 قوية — Recon, API Hacking

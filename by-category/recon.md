@@ -1,0 +1,61 @@
+# Recon
+
+_57 tips_
+
+- [.DS_Store + Thumbs.db exposure → directory structure leak](../tips/ds-store-thumbsdb-exposure-directory-structure-leak.md) — ⭐ جيدة
+- [.git/config exposed → full source dump with git-dumper ($500–$3500+ real cases)](../tips/gitconfig-exposed-full-source-dump-with-git-dumper-5003500-real-cases.md) — ⭐ جيدة
+- [.htpasswd / .htaccess exposed → Basic Auth credentials](../tips/htpasswd-htaccess-exposed-basic-auth-credentials.md) — ⭐ جيدة
+- [.svn/wc.db exposed → full source code reconstruction ($400 case)](../tips/svnwcdb-exposed-full-source-code-reconstruction-400-case.md) — 🔥 قوية
+- [403/401 host → archive.org old snapshots still have secrets](../tips/403401-host-archiveorg-old-snapshots-still-have-secrets.md) — ⭐ جيدة
+- [404 response → check for exposed config or repository paths](../tips/404-response-check-for-exposed-config-or-repository-paths.md) — ⭐ جيدة
+- [404 Subdomains — Backend errors, S3 paths, and leaked stack info](../tips/404-subdomains-backend-errors-s3-paths-and-leaked-stack-info.md) — 🔥 قوية
+- [Advanced Dork: .env with real secrets (DB_PASSWORD / AWS_SECRET)](../tips/advanced-dork-env-with-real-secrets-db-password-aws-secret.md) — 🔥 قوية
+- [Advanced Dork: .git exposure with HEAD/config](../tips/advanced-dork-git-exposure-with-headconfig.md) — ⭐ جيدة
+- [Advanced Dork: Backup files with credentials](../tips/advanced-dork-backup-files-with-credentials.md) — ⭐ جيدة
+- [Advanced Dork: Firebase / S3 public buckets](../tips/advanced-dork-firebase-s3-public-buckets.md) — 🔥 قوية
+- [Advanced Dork: Open directory listings with sensitive folders](../tips/advanced-dork-open-directory-listings-with-sensitive-folders.md) — 🔥 قوية
+- [Advanced Dork: Private keys & certificates](../tips/advanced-dork-private-keys-certificates.md) — 🔥 قوية
+- [Advanced Dork: SQL dumps with real data](../tips/advanced-dork-sql-dumps-with-real-data.md) — 🔥 قوية
+- [AI Builder Project Visibility Regression → Source / Chat History Authorization Boundary](../tips/ai-builder-project-visibility-regression-source-chat-history-authorization-bound.md) — 📌 للمراجعة
+- [Apache server-status / server-info مكشوف → internal info + active requests](../tips/apache-server-status-server-info-مكشوف-internal-info-active-requests.md) — ⭐ جيدة
+- [API Debug /env /status endpoints → $3,000 Bounty (Secret Hunter case)](../tips/api-debug-env-status-endpoints-3000-bounty-secret-hunter-case.md) — 🔥 قوية
+- [Array injection ([] or [1,2,3]) → Full Path / Stack Trace Disclosure](../tips/array-injection-or-123-full-path-stack-trace-disclosure.md) — ⭐ جيدة
+- [AWS App Recon Chain → Cognito Identifiers, S3 / DNS / Deployment Artifact Exposure ($10K Case)](../tips/aws-app-recon-chain-cognito-identifiers-s3-dns-deployment-artifact-exposure-10k.md) — ⭐ جيدة
+- [AWS tip: probe /ramp_core.js for embedded AccessKey material](../tips/aws-tip-probe-ramp-corejs-for-embedded-accesskey-material.md) — ⭐ جيدة
+- [Azure DevOps Public Project Review → Pipeline Metadata & Accidental Secret Exposure](../tips/azure-devops-public-project-review-pipeline-metadata-accidental-secret-exposure.md) — ⭐ جيدة
+- [Backup Disclosure عبر فزّ امتداد tar.gz على الدومين الرئيسي](../tips/backup-disclosure-عبر-فز-امتداد-targz-على-الدومين-الرئيسي.md) — 🔥 قوية
+- [Backup files (wp-config.php.bak, .env.bak, .sql, ~ files) → credentials leak](../tips/backup-files-wp-configphpbak-envbak-sql-files-credentials-leak.md) — 📌 للمراجعة
+- [Backup tar.gz / .zip / .sql على الـ root domain مباشرة](../tips/backup-targz-zip-sql-على-الـ-root-domain-مباشرة.md) — 🔥 قوية
+- [Bypass 403 Forbidden بإضافة X-Client-IP: 127.0.0.1](../tips/bypass-403-forbidden-بإضافة-x-client-ip-127001.md) — ⭐ جيدة
+- [Bypass قيود الوصول بتغيير حروف الـ Path (Case Sensitivity)](../tips/bypass-قيود-الوصول-بتغيير-حروف-الـ-path-case-sensitivity.md) — 🔥 قوية
+- [Cloudflare R2.dev public access left on → data exposure](../tips/cloudflare-r2dev-public-access-left-on-data-exposure.md) — 🔥 قوية
+- [Cloudflare Worker/API Key Exposure → Edge JavaScript Supply-Chain Injection](../tips/cloudflare-workerapi-key-exposure-edge-javascript-supply-chain-injection.md) — ⭐ جيدة
+- [Common debug / admin panels on non-standard ports or staging](../tips/common-debug-admin-panels-on-non-standard-ports-or-staging.md) — ⭐ جيدة
+- [composer.phar / phar archives as Info Disclosure](../tips/composerphar-phar-archives-as-info-disclosure.md) — ⭐ جيدة
+- [config.php / settings.py / application.properties / appsettings.json exposed](../tips/configphp-settingspy-applicationproperties-appsettingsjson-exposed.md) — 🔥 قوية
+- [crossdomain.xml / clientaccesspolicy.xml permissive → Flash/Silverlight origin issues](../tips/crossdomainxml-clientaccesspolicyxml-permissive-flashsilverlight-origin-issues.md) — 📌 للمراجعة
+- [Different 404 Fingerprint → Look for a Separate Backend API Context](../tips/different-404-fingerprint-look-for-a-separate-backend-api-context.md) — ⭐ جيدة
+- [Directory listing enabled (especially /wp-content, /uploads, /backup)](../tips/directory-listing-enabled-especially-wp-content-uploads-backup.md) — ⭐ جيدة
+- [Disable JavaScript → legacy / forgotten form still live](../tips/disable-javascript-legacy-forgotten-form-still-live.md) — ⭐ جيدة
+- [Discover quieter bug bounty programs via Slack dork](../tips/discover-quieter-bug-bounty-programs-via-slack-dork.md) — ⭐ جيدة
+- [Django DEBUG=True in production](../tips/django-debugtrue-in-production.md) — 🔥 قوية
+- [Django DEBUG=True in production → full traceback + settings leak](../tips/django-debugtrue-in-production-full-traceback-settings-leak.md) — ⭐ جيدة
+- [Dork (High Signal): Cloud buckets linked to target](../tips/dork-high-signal-cloud-buckets-linked-to-target.md) — 🔥 قوية
+- [Dork (High Signal): Confidential / Internal documents](../tips/dork-high-signal-confidential-internal-documents.md) — ⭐ جيدة
+- [Dork (High Signal): Database dumps with real content](../tips/dork-high-signal-database-dumps-with-real-content.md) — 🔥 قوية
+- [Dork (High Signal): Error / Stack Trace / SQL errors](../tips/dork-high-signal-error-stack-trace-sql-errors.md) — ⭐ جيدة
+- [Dork (High Signal): Full juicy extensions dump](../tips/dork-high-signal-full-juicy-extensions-dump.md) — 🔥 قوية
+- [Dork (High Signal): Index of with sensitive names](../tips/dork-high-signal-index-of-with-sensitive-names.md) — 🔥 قوية
+- [Dork (High Signal): Test / Staging / Dev environments](../tips/dork-high-signal-test-staging-dev-environments.md) — 🔥 قوية
+- [Dork (High Signal): wp-config / PHP config backups](../tips/dork-high-signal-wp-config-php-config-backups.md) — 🔥 قوية
+- [Dork (Lesser-known): Bing IP-based search for exposed files](../tips/dork-lesser-known-bing-ip-based-search-for-exposed-files.md) — ⭐ جيدة
+- [DorkAgent — automate scoped dork research](../tips/dorkagent-automate-scoped-dork-research.md) — ⭐ جيدة
+- [Elasticsearch / Kibana open (no auth) → full data dump](../tips/elasticsearch-kibana-open-no-auth-full-data-dump.md) — 🔥 قوية
+- [Elmah.axd / ASP.NET error log exposed](../tips/elmahaxd-aspnet-error-log-exposed.md) — ⭐ جيدة
+- [Elmah.axd /elmah → Session cookies → Employee ATO ($6,000 escalation case)](../tips/elmahaxd-elmah-session-cookies-employee-ato-6000-escalation-case.md) — 📌 للمراجعة
+- [Empty API response subdomain → still try full Swagger paths](../tips/empty-api-response-subdomain-still-try-full-swagger-paths.md) — ⭐ جيدة
+- [Exposed .env على subdomain = $250–$10k+ (Easy $250 case + higher)](../tips/exposed-env-على-subdomain-25010k-easy-250-case-higher.md) — 🔥 قوية
+- [Exposed Google Maps API keys may unlock Gemini — validate model access not just Maps](../tips/exposed-google-maps-api-keys-may-unlock-gemini-validate-model-access-not-just-ma.md) — 🔥 قوية
+- [FindSomething browser extension for credential-shaped strings during recon](../tips/findsomething-browser-extension-for-credential-shaped-strings-during-recon.md) — ⭐ جيدة
+- [Firebase Realtime DB / Firestore open rules → full read/write (classic high impact)](../tips/firebase-realtime-db-firestore-open-rules-full-readwrite-classic-high-impact.md) — 🔥 قوية
+- [Firebase Realtime DB open rules (read/write without auth)](../tips/firebase-realtime-db-open-rules-readwrite-without-auth.md) — 🔥 قوية
